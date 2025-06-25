@@ -26,9 +26,9 @@ terraform.rc
 # Ignore lock files
 .terraform.lock.hcl
 
-# SSH 키 파일 (생성된 키 파일은 버전 관리에서 제외)
-jskwon-test-key
-jskwon-test-key.pub
+# SSH 키 파일
+*.pem
+*.pub
 
 # IDE 관련 파일
 .idea/
