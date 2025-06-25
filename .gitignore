@@ -29,6 +29,7 @@ terraform.rc
 # SSH 키 파일
 *.pem
 *.pub
+jskwon-test-key
 
 # IDE 관련 파일
 .idea/
