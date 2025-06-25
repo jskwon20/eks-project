@@ -1,5 +1,23 @@
+# VSCode 서버 비밀번호 생성
+resource "random_password" "vscode_password" {
+  length  = 16
+  special = true
+}
+
 # 키 파일 로컬 생성 (jskwon-test-key 및 jskwon-test-key.pub)
 # 키 페어 생성
+
+# resource "null_resource" "generate_key" {
+# provisioner "local-exec" {
+# command = <<EOT
+# ssh-keygen -t rsa -b 2048 -f ${path.module}/jskwon-test-key -q -N ""
+# EOT
+# }
+# triggers = {
+# always_run = timestamp()
+# }
+# }
+
 resource "tls_private_key" "jskwon_key" {
   algorithm = "RSA"
   rsa_bits  = 2048
@@ -31,7 +49,6 @@ resource "aws_instance" "jskwon_test_server" {
     Name = "jskwon-test-server"
   }
 
-
   # SSH 연결 설정
   connection {
     type        = "ssh"
@@ -40,13 +57,19 @@ resource "aws_instance" "jskwon_test_server" {
     private_key = tls_private_key.jskwon_key.private_key_pem
   }
   
-  # 원격 명령 실행
+  # Docker 및 VSCode 서버 설치 및 실행
   provisioner "remote-exec" {
     inline = [
       "sudo yum update -y",
-      "sudo amazon-linux-extras install -y nginx1",
-      "sudo systemctl start nginx",
-      "sudo systemctl enable nginx"
+      # Docker 설치
+      "sudo yum install -y docker",
+      "sudo systemctl enable --now docker",
+      # ec2-user를 docker 그룹에 추가
+      "sudo usermod -aG docker ec2-user",
+      # VSCode 서버 디렉토리 생성
+      "mkdir -p ~/code-server",
+      # Docker로 VSCode 서버 실행 (한 줄로 작성)
+      "sudo docker run -d --name=code-server -p 8080:8080 -v /home/ec2-user/code-server:/home/coder -v /home/ec2-user/.ssh:/home/coder/.ssh -e PASSWORD='${random_password.vscode_password.result}' codercom/code-server:latest"
     ]
   }
 

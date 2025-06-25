@@ -8,17 +8,26 @@ resource "aws_security_group" "jskwon_test_server" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["61.34.245.211/32"]
     description = "Allow SSH access"
   }
 
-  # HTTP 접근 허용
+  # VSCode 서버 접속 허용 (8080 포트)
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["61.34.245.211/32"]
+    description = "VSCode Server Access"
+  }
+
+  # Docker API 접속 허용 (2375 포트)
+  ingress {
+    from_port   = 2375
+    to_port     = 2375
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow HTTP access"
+    description = "Docker API Access"
   }
 
   # 모든 아웃바운드 트래픽 허용
