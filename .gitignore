@@ -1,6 +1,9 @@
 # Local .terraform directories
 **/.terraform/*
 
+README.md
+install-tools.sh
+
 # .tfstate files
 *.tfstate
 *.tfstate.*
