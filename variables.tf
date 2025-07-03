@@ -28,3 +28,8 @@ variable "bastion_cidr" {
   description = "Bastion host CIDR"
   type        = string
 }
+
+variable "karpenter_chart_version" {
+  description = "Karpenter Helm 차트 버전"
+  type        = string
+}

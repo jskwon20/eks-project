@@ -22,11 +22,6 @@ resource "aws_iam_role_policy_attachment" "eks_admin_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
 
-resource "aws_iam_role_policy_attachment" "eks_view_policy" {
-  role       = aws_iam_role.eks_admin_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSViewPolicy"
-}
-
 # 추가 EKS 정책 연결
 resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {
   role       = aws_iam_role.eks_admin_role.name
@@ -36,11 +31,6 @@ resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {
 resource "aws_iam_role_policy_attachment" "eks_list_nodegroups" {
   role       = aws_iam_role.eks_admin_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
-}
-
-resource "aws_iam_role_policy_attachment" "eks_read_only" {
-  role       = aws_iam_role.eks_admin_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSReadOnlyAccess"
 }
 
 resource "aws_iam_role_policy_attachment" "eks_cni_policy" {

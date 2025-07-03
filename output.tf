@@ -38,3 +38,11 @@ output "docker_logs_command" {
   value       = "ssh -i jskwon-test-key ec2-user@${aws_instance.jskwon_bastion_ec2.public_ip} 'docker logs code-server'"
   description = "VSCode 서버 로그 확인 명령어"
 }
+
+output "hosted_zone_name_servers" {
+  value = data.aws_route53_zone.this.name_servers
+}
+
+output "update_kubeconfig" {
+  value = "aws eks update-kubeconfig --name ${module.eks.cluster_name} --region ${data.aws_region.current.name}"
+}

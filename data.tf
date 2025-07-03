@@ -41,10 +41,3 @@ data "aws_eks_addon_version" "vpc_cni" {
   kubernetes_version = var.eks_cluster_version
   most_recent        = true
 }
-
-# Route53 호스트존
-data "aws_route53_zone" "gsitm-test" {
-  provider = aws.gsitm-test
-
-  name = "gsitm-test.com"
-}

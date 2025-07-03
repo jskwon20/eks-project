@@ -1,4 +1,6 @@
 controller:
+  nodeSelector:
+    eks.amazonaws.com/compute-type: ec2
   autoscaling:
     enabled: true
     targetCPUUtilizationPercentage: 70
@@ -12,19 +14,14 @@ controller:
       memory: 1Gi
   service:
     annotations:
-      service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
-      service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
-      service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "tcp"
-      service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
-      service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
-      service.beta.kubernetes.io/aws-load-balancer-target-group-attributes: "deregistration_delay.timeout_seconds=30"
-    externalTrafficPolicy: Local
-    type: LoadBalancer
-    ports:
-      http: 80
-      https: 443
+      service.beta.kubernetes.io/aws-load-balancer-type: external
+      service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+      service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
+      service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:ap-northeast-2:637341921879:certificate/d5014aef-b0b4-4ffe-a775-7b6dcdfd07e2
+      service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: "*"
     targetPorts:
-      http: http
       https: http
   config:
     use-proxy-protocol: "true"
@@ -33,4 +30,4 @@ controller:
   metrics:
     enabled: true
     serviceMonitor:
-      enabled: true
+      enabled: false
