@@ -187,7 +187,7 @@ resource "kubernetes_manifest" "ec2nodeclass_default" {
       "subnetSelectorTerms" = [
         {
           "tags" = {
-            "karpenter.sh/discovery" = module.eks.cluster_name
+            "karpenter.sh/discovery" = local.project
           }
         },
       ],
@@ -249,7 +249,7 @@ resource "kubernetes_manifest" "nodepool_default" {
             },
             {
               "key"      = "karpenter.k8s.aws/instance-memory"
-              "operator" = "Gt"
+              "operator" = "Ge"
               "values" = [
                 "4096",
               ]

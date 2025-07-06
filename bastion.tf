@@ -16,60 +16,11 @@ resource "aws_iam_role" "eks_admin_role" {
   })
 }
 
-# EKS 관리자 정책 연결
-resource "aws_iam_role_policy_attachment" "eks_admin_policy" {
-  role       = aws_iam_role.eks_admin_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-}
-
-# 추가 EKS 정책 연결
-resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {
-  role       = aws_iam_role.eks_admin_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-}
-
-resource "aws_iam_role_policy_attachment" "eks_list_nodegroups" {
-  role       = aws_iam_role.eks_admin_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
-}
-
-resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
-  role       = aws_iam_role.eks_admin_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-}
-
-resource "aws_iam_role_policy_attachment" "ecr_readonly" {
-  role       = aws_iam_role.eks_admin_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-}
-
 # IAM 인스턴스 프로파일 생성
 resource "aws_iam_instance_profile" "eks_admin_profile" {
   name = "eks-admin-instance-profile"
   role = aws_iam_role.eks_admin_role.name
 }
-
-# EKS 클러스터에 대한 제어
-resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
-  role       = aws_iam_role.eks_admin_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-}
-
-# EKS 노드 그룹 제어
-resource "aws_iam_role_policy_attachment" "eks_nodegroup_policy" {
-  role       = aws_iam_role.eks_admin_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
-}
-
-# EKS VPC 리소스 관리 (로드 밸런서 등 포함)
-resource "aws_iam_role_policy_attachment" "eks_vpc_resource_controller" {
-  role       = aws_iam_role.eks_admin_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
-}
-
-
-# 현재 리전 정보 가져오기
-data "aws_region" "current" {}
 
 # VSCode 서버 비밀번호 생성
 resource "random_password" "vscode_password" {
