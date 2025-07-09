@@ -138,6 +138,7 @@ resource "helm_release" "karpenter" {
   depends_on = [
     aws_eks_addon.coredns,
     helm_release.karpenter-crd,
+    module.eks,
     module.karpenter,
     module.vpc.private_route_table_ids,
     module.vpc.private_nat_gateway_route_ids,
@@ -181,7 +182,7 @@ resource "kubernetes_manifest" "ec2nodeclass_default" {
       "role" = module.karpenter.node_iam_role_name
       "securityGroupSelectorTerms" = [
         {
-          "id" = module.eks.cluster_primary_security_group_id
+          "id" = aws_security_group.eks_nodes_sg.id
         },
       ]
       "subnetSelectorTerms" = [
