@@ -3,7 +3,7 @@
 
 README.md
 install-tools.sh
-
+terraform_destroy.md
 # .tfstate files
 *.tfstate
 *.tfstate.*
