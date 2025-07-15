@@ -1,18 +1,17 @@
-# bastion Server AMI
-data "aws_ami" "aml2" {
+data "aws_ami" "ubuntu" {
   most_recent = true
-  owners      = ["amazon"]
+
+  owners = ["099720109477"] # Canonical (Ubuntu 공식)
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-ebs"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
   }
 }
 
 data "aws_availability_zones" "azs" {
   state = "available"
 }
-
 data "aws_eks_cluster_auth" "this" {
   name = module.eks.cluster_name
 }

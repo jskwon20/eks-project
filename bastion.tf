@@ -97,7 +97,7 @@ resource "aws_key_pair" "jskwon" {
 
 # EC2 인스턴스 생성
 resource "aws_instance" "jskwon_bastion_ec2" {
-  ami                         = data.aws_ami.aml2.id
+  ami                         = data.aws_ami.ubuntu.id
   instance_type               = "t3.small"
   subnet_id                   = module.vpc.public_subnets[0]
   key_name                    = aws_key_pair.jskwon.key_name
@@ -112,44 +112,22 @@ resource "aws_instance" "jskwon_bastion_ec2" {
   # SSH 연결 설정
   connection {
     type        = "ssh"
-    user        = "ec2-user"
+    user        = "ubuntu"
     host        = self.public_ip
     private_key = tls_private_key.jskwon_key.private_key_pem
   }
   
-  # Docker, kubectl, AWS CLI 설치 및 EKS 접근 설정
+  # 시스템 초기 설정
+  
+
+  # code-server 서비스 시작 (이전 단계가 완료된 후 실행)
   provisioner "remote-exec" {
     inline = [
-      # 시스템 업데이트
-      "sudo yum update -y",
-      
-      # Docker 설치
-      "sudo yum install -y docker",
-      "sudo systemctl enable --now docker",
-      "sudo usermod -aG docker ec2-user",
-      
-      # AWS CLI v2 설치
-      "curl -s https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip",
-      "unzip -q awscliv2.zip",
-      "sudo ./aws/install",
-      
-      # kubectl 설치
-      "curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl",
-      "chmod +x ./kubectl",
-      "sudo mv ./kubectl /usr/local/bin/kubectl",
-      
-      # VSCode 서버 디렉토리 생성 및 실행
-      "mkdir -p ~/code-server",
-      "sudo docker run -d --name=code-server -p 8080:8080 -v /home/ec2-user/code-server:/home/coder -v /home/ec2-user/.kube:/home/coder/.kube -e PASSWORD='${random_password.vscode_password.result}' codercom/code-server:latest",
-      
-      # kubeconfig 설정
-      "mkdir -p ~/.kube",
-      "aws eks update-kubeconfig --name ${module.eks.cluster_name} --region ${data.aws_region.current.name} --role-arn ${module.eks.cluster_iam_role_arn}",
-      
-      # kubectl 자동 완성 설정
-      "echo 'source <(kubectl completion bash)' >> ~/.bashrc",
-      "echo 'alias k=kubectl' >> ~/.bashrc",
-      "echo 'complete -o default -F __start_kubectl k' >> ~/.bashrc",
+      # code-server 서비스 시작 및 활성화
+      "sudo systemctl daemon-reload",
+      "sudo systemctl enable code-server",
+      "sudo systemctl start code-server",
+      "echo 'Code-server is running on port 8080'"
     ]
   }
   

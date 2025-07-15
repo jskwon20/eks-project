@@ -10,12 +10,12 @@ output "vscode_password" {
 }
 
 output "ssh_connection" {
-  value       = "ssh -i jskwon-test-key ec2-user@${aws_instance.jskwon_bastion_ec2.public_ip}"
+  value       = "ssh -i jskwon-test-key ubuntu@${aws_instance.jskwon_bastion_ec2.public_ip}"
   description = "SSH 연결 명령어"
 }
 
 output "docker_status_command" {
-  value       = "ssh -i jskwon-test-key ec2-user@${aws_instance.jskwon_bastion_ec2.public_ip} 'docker ps'"
+  value       = "ssh -i jskwon-test-key ubuntu@${aws_instance.jskwon_bastion_ec2.public_ip} 'docker ps'"
   description = "Docker 컨테이너 상태 확인 명령어"
 }
 
@@ -35,7 +35,7 @@ output "eks_cluster_role_arn" {
 }
 
 output "docker_logs_command" {
-  value       = "ssh -i jskwon-test-key ec2-user@${aws_instance.jskwon_bastion_ec2.public_ip} 'docker logs code-server'"
+  value       = "ssh -i jskwon-test-key ubuntu@${aws_instance.jskwon_bastion_ec2.public_ip} 'docker logs code-server'"
   description = "VSCode 서버 로그 확인 명령어"
 }
 

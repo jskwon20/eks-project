@@ -1,6 +1,4 @@
 controller:
-  nodeSelector:
-    eks.amazonaws.com/compute-type: ec2
   autoscaling:
     enabled: true
     targetCPUUtilizationPercentage: 70
@@ -9,9 +7,6 @@ controller:
     requests:
       cpu: 100m
       memory: 512Mi
-    limits:
-      cpu: 500m
-      memory: 1Gi
   service:
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-type: external
@@ -19,7 +14,7 @@ controller:
       service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
       service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
       service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
-      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:ap-northeast-2:637341921879:certificate/d5014aef-b0b4-4ffe-a775-7b6dcdfd07e2
+      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: ${lb_acm_certificate_arn}
       service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: "*"
     targetPorts:
       https: http

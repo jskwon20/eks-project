@@ -199,7 +199,8 @@ resource "kubernetes_manifest" "ec2nodeclass_default" {
   }
 
   depends_on = [
-    helm_release.karpenter
+    module.eks,
+    module.karpenter
   ]
 }
 
@@ -293,12 +294,11 @@ resource "aws_eks_addon" "this" {
   cluster_name                = module.eks.cluster_name
   addon_name                  = each.key
   addon_version               = data.aws_eks_addon_version.this[each.key].version
-  resolve_conflicts_on_create = "OVERWRITE"
-  resolve_conflicts_on_update = "OVERWRITE"
+  resolve_conflicts_on_create = each.key == "vpc-cni" ? "NONE" : "OVERWRITE"
+  resolve_conflicts_on_update = each.key == "vpc-cni" ? "NONE" : "OVERWRITE"
 
   depends_on = [
     kubernetes_manifest.nodepool_default,
-    helm_release.aws_load_balancer_controller
   ]
 
   timeouts {
@@ -466,6 +466,7 @@ resource "helm_release" "ingress_nginx" {
   ]
 
   depends_on = [
-    helm_release.aws_load_balancer_controller
+    helm_release.aws_load_balancer_controller,
+    aws_acm_certificate_validation.this
   ]
 }
