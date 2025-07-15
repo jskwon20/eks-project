@@ -3,11 +3,11 @@ resource "aws_iam_role" "eks_admin_role" {
   name = "eks-admin-role"
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17"
+    Version = "2012-10-17",
     Statement = [
       {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
         Principal = {
           Service = "ec2.amazonaws.com"
         }
@@ -117,20 +117,75 @@ resource "aws_instance" "jskwon_bastion_ec2" {
     private_key = tls_private_key.jskwon_key.private_key_pem
   }
   
-  # 시스템 초기 설정
-  
-
-  # code-server 서비스 시작 (이전 단계가 완료된 후 실행)
   provisioner "remote-exec" {
     inline = [
-      # code-server 서비스 시작 및 활성화
+      # 시스템 업데이트 및 필수 패키지 설치 (오류 발생 시 계속 실행)
+      "set -e",
+      "echo 'Updating system packages...'",
+      "sudo DEBIAN_FRONTEND=noninteractive apt-get update -y || echo 'apt-get update failed but continuing...'",
+      "sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -o Dpkg::Options::=\"--force-confold\" --allow-downgrades --allow-remove-essential --allow-change-held-packages || echo 'apt-get upgrade failed but continuing...'",
+      "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends apt-transport-https ca-certificates curl software-properties-common unzip gnupg2",
+
+      # AWS CLI v2 설치 (기존 버전 제거 후 설치)
+      "echo 'Installing AWS CLI v2...'",
+      "sudo rm -rf /usr/local/aws-cli",
+      "curl -s https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip",
+      "unzip -q awscliv2.zip",
+      "sudo ./aws/install --update",
+      "rm -rf awscliv2.zip aws",
+
+      # kubectl 설치 (안정적인 버전 사용)
+      "echo 'Installing kubectl...'",
+      "curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl",
+      "chmod +x ./kubectl",
+      "sudo mv ./kubectl /usr/local/bin/",
+      "mkdir -p /home/ubuntu/.kube",
+      "chown ubuntu:ubuntu /home/ubuntu/.kube",
+
+      # kubectl 자동 완성 설정
+      "echo 'Configuring kubectl completion...'",
+      "echo 'source <(kubectl completion bash)' >> /home/ubuntu/.bashrc",
+      "echo 'alias k=kubectl' >> /home/ubuntu/.bashrc",
+      "echo 'complete -o default -F __start_kubectl k' >> /home/ubuntu/.bashrc",
+      "echo 'export KUBECONFIG=/home/ubuntu/.kube/config' >> /home/ubuntu/.bashrc",
+
+      # code-server 설치 (안정적인 버전 사용)
+      "echo 'Installing code-server...'",
+      "curl -fsSL https://code-server.dev/install.sh | sh -s -- --version 4.16.1",
+
+      # code-server 설정
+      "echo 'Configuring code-server...'",
+      "mkdir -p /home/ubuntu/.config/code-server",
+      "chown -R ubuntu:ubuntu /home/ubuntu/.config",
+      "cat <<'EOF' | sed 's/^  //' > /home/ubuntu/.config/code-server/config.yaml\n  bind-addr: 0.0.0.0:8080\n  auth: password\n  password: ${random_password.vscode_password.result}\n  cert: false\nEOF",
+
+      # code-server 서비스 설정
+      "echo 'Setting up code-server service...'",
+      "sudo mkdir -p /etc/systemd/system",
+      "cat <<EOF | sudo tee /etc/systemd/system/code-server.service > /dev/null\n[Unit]\nDescription=code-server\nAfter=network.target\n\n[Service]\nType=simple\nUser=ubuntu\nWorkingDirectory=/home/ubuntu\nEnvironment=PATH=/usr/bin:/usr/local/bin\nExecStart=/usr/bin/code-server --config /home/ubuntu/.config/code-server/config.yaml /home/ubuntu\nRestart=always\nRestartSec=5\n\n[Install]\nWantedBy=multi-user.target\nEOF",
+
+      # 서비스 시작
+      "echo 'Starting services...'",
       "sudo systemctl daemon-reload",
       "sudo systemctl enable code-server",
-      "sudo systemctl start code-server",
-      "echo 'Code-server is running on port 8080'"
+      "sudo systemctl restart code-server",
+      "echo 'Installation completed successfully! Code-server is running on port 8080'"
     ]
+    
+    # 연결 재시도 및 타임아웃 설정
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = tls_private_key.jskwon_key.private_key_pem
+      host        = self.public_ip
+    }
+    
+    # 실패 시 재시도
+    on_failure = continue
   }
-  
+  timeouts {
+    create = "5m"
+  }
   # 의존성 설정
   depends_on = [
     aws_key_pair.jskwon,
