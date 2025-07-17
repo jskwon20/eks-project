@@ -7,7 +7,8 @@ module "eks" {
   cluster_version = var.eks_cluster_version
 
   # 클러스터 엔드포인트(API 서버)에 퍼블릭 접근 허용
-  cluster_endpoint_public_access = true
+  cluster_endpoint_public_access  = true
+  cluster_endpoint_private_access = false
 
   # 클러스터 보안그룹을 생성할 VPC
   vpc_id = module.vpc.vpc_id

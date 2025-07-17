@@ -102,6 +102,16 @@ resource "aws_security_group_rule" "eks_cluster_ingress_all" {
   description       = "TEMP: Allow all inbound traffic (for testing)"
 }
 
+resource "aws_security_group_rule" "eks_cluster_egress_all" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = module.eks.cluster_security_group_id
+  description       = "TEMP: Allow all outbound traffic (for testing)"
+}
+
 # EKS 클러스터 보안 그룹에 EKS 컨트롤 플레인에서의 인바운드 트래픽 허용
 resource "aws_security_group_rule" "eks_cluster_ingress_nodes_https" {
   type                     = "ingress"
@@ -159,6 +169,16 @@ resource "aws_security_group_rule" "eks_nodes_ingress_dns_udp" {
   security_group_id        = aws_security_group.eks_nodes_sg.id
   source_security_group_id = module.eks.cluster_security_group_id
   description              = "Allow DNS (UDP) from control plane"
+}
+
+resource "aws_security_group_rule" "cluster_ingress_from_nodes" {
+  type                     = "ingress"
+  protocol                 = "-1"
+  from_port                = 0
+  to_port                  = 0
+  source_security_group_id = aws_security_group.eks_nodes_sg.id
+  security_group_id        = module.eks.cluster_security_group_id
+  description              = "Allow all traffic from EC2 nodes to the cluster security group"
 }
 
 # Bastion 호스트 보안 그룹

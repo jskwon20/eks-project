@@ -1,42 +1,19 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: app1
+  name: ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: app1
-  template:
-    metadata:
-      labels:
-        app: app1
-    spec:
-      containers:
-      - name: app1
-        image: public.ecr.aws/o8h3c1q6/eks-project/higher-lower-game
-        ports:
-        - containerPort: 8000
-        resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 200m
-            memory: 256Mi
-      nodeSelector:
-        karpenter.sh/capacity-type: on-demand
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: app1
-spec:
-  selector:
-    app: app1
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8000
-  type: ClusterIP
+  ingressClassName: nginx
+  rules:
+  - host: "gsitm-test.com"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app1
+            port:
+              number: 80

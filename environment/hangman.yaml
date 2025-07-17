@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: hangman
-          image: public.ecr.aws/o8h3c1q6/eks-project/hangman:latest
+          image: 637341921879.dkr.ecr.ap-northeast-2.amazonaws.com/eks-project/hangman:latest
           ports:
             - containerPort: 8080
 

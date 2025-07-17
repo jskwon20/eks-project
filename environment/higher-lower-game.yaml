@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: app1
-        image: public.ecr.aws/o8h3c1q6/eks-project/higher-lower-game
+        image: 637341921879.dkr.ecr.ap-northeast-2.amazonaws.com/eks-project/higher-lower-game
         ports:
         - containerPort: 8000
         resources:
