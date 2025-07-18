@@ -295,8 +295,8 @@ resource "aws_eks_addon" "this" {
   cluster_name                = module.eks.cluster_name
   addon_name                  = each.key
   addon_version               = data.aws_eks_addon_version.this[each.key].version
-  resolve_conflicts_on_create = each.key == "vpc-cni" ? "NONE" : "OVERWRITE"
-  resolve_conflicts_on_update = each.key == "vpc-cni" ? "NONE" : "OVERWRITE"
+  resolve_conflicts_on_create = "OVERWRITE"
+  resolve_conflicts_on_update = "OVERWRITE"
 
   depends_on = [
     kubernetes_manifest.nodepool_default,
