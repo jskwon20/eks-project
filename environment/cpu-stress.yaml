@@ -1,23 +1,18 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Pod
 metadata:
   name: cpu-stress
+  labels:
+    app: cpu-stress
 spec:
-  replicas: 5
-  selector:
-    matchLabels:
-      app: cpu-stress
-  template:
-    metadata:
-      labels:
-        app: cpu-stress
-    spec:
-      containers:
-      - name: stress
-        image: vish/stress
-        args:
-          - "--cpu"
-          - "2"
-        resources:
-          requests:
-            cpu: "1000m"
+  containers:
+  - name: stress
+    image: vish/stress
+    args:
+    - --cpus
+    - "2"
+    resources:
+      requests:
+        cpu: "500m"
+      limits:
+        cpu: "1000m"

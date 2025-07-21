@@ -17,3 +17,10 @@ spec:
             name: app1
             port:
               number: 80
+      - path: /app2
+        pathType: Prefix
+        backend:
+          service:
+            name: app2
+            port:
+              number: 80
