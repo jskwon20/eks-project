@@ -33,3 +33,13 @@ variable "karpenter_chart_version" {
   description = "Karpenter Helm 차트 버전"
   type        = string
 }
+
+variable "gitlab_chart_version" {
+  description = "GitLab Helm 차트 버전 "
+  type        = string
+}
+
+variable "argocd_chart_version" {
+  description = "ArgoCD Helm 차트 버전 "
+  type        = string
+}
